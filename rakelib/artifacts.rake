@@ -14,6 +14,7 @@ namespace "artifact" do
       "bin/**/*",
       "config/**/*",
       "data",
+      "lib/logstash/**/*",
       "lib/bootstrap/**/*",
       "lib/pluginmanager/**/*",
       "lib/systeminstall/**/*",
