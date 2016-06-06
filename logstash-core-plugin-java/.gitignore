@@ -1,0 +1,11 @@
+*.gem
+*.class
+
+# build dirs
+build
+gradle
+.gradle
+
+# Intellij
+.idea
+*.iml

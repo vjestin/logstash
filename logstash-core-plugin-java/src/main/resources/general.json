@@ -1,0 +1,10 @@
+{
+  "enable_metric" : {
+    "validate" : "boolean",
+    "default" : true
+  },
+  "id" : {
+    "validate" : "string"
+  }
+}
+
