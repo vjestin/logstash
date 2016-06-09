@@ -13,7 +13,56 @@ shared_examples "logstash install" do |logstash|
   end
 
   describe "on #{logstash.hostname}" do
+
+    describe "plugins as x-packs" do
+
+      let(:pack)        { "https://s3.amazonaws.com/test.elasticsearch.org/logstash/jdbc_pack-#{LOGSTASH_VERSION}.zip" }
+      let(:plugin_name) { "logstash-input-jdbc" }
+
+      it "install sucessfully" do
+        result = logstash.run_command_in_path("bin/logstash-plugin install #{pack}")
+        expect(result).to install_successfully
+        expect(result.stdout).to match(/^Validating\s#{pack}\nValidating\s#{plugin_name}\nInstalling\s#{plugin_name}\nInstallation\ssuccessful$/)
+      end
+
+      context "when the version does not match" do
+        let(:pack)        { "https://s3.amazonaws.com/test.elasticsearch.org/logstash/jdbc_pack-2.0.0.zip" }
+
+        it "fails to install" do
+          result = logstash.run_command_in_path("bin/logstash-plugin install #{pack}")
+          expect(result).not_to install_successfully
+          expect(result.stdout).to match(/^Validating\s#{pack}$/)
+          expect(result.stderr).to match(/^ERROR:\sInstallation\saborted,\sverification\sfailed\sfor\s#{pack},\sversion\s2.0.0.$/)
+        end
+      end
+
+      context "without version" do
+        let(:pack)        { "https://s3.amazonaws.com/test.elasticsearch.org/logstash/jdbc_pack.zip" }
+
+        it "fails to install" do
+          result = logstash.run_command_in_path("bin/logstash-plugin install #{pack}")
+          expect(result).not_to install_successfully
+          expect(result.stdout).to match(/^Validating\s#{pack}$/)
+          expect(result.stderr).to match(/^ERROR:\sInstallation\saborted,\sverification\sfailed\sfor\s#{pack},\sversion\s.$/)
+        end
+      end
+
+      context "when the pack does not exist" do
+        let(:pack)        { "https://s3.amazonaws.com/test.elasticsearch.org/logstash/foobar-99.0.0.zip" }
+
+        it "fails to install" do
+          result = logstash.run_command_in_path("bin/logstash-plugin install #{pack}")
+          expect(result).not_to install_successfully
+          expect(result.stdout).to match(/^Validating\s#{pack}$/)
+          expect(result.stderr).to match(/^ERROR:\sInstallation\saborted,\sverification\sfailed\sfor\s#{pack},\sversion\s99.0.0.$/)
+        end
+      end
+    end
+
+    describe "plugins as gems" do
+
     context "with a direct internet connection" do
+
       context "when the plugin exist" do
         context "from a local `.GEM` file" do
           let(:gem_name) { "logstash-filter-qatest-0.1.1.gem" }
@@ -64,6 +113,9 @@ shared_examples "logstash install" do |logstash|
           expect(command.stderr).to match(/Plugin not found, aborting/)
         end
       end
+
+  end
     end
   end
+
 end
