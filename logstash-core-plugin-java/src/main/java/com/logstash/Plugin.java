@@ -51,8 +51,12 @@ public class Plugin {
     }
 
     public static Plugin lookup(String type, String name) {
+        return null;
     }
-    public static String config_name(String name);
+
+    public static String config_name(String name){
+        return null;
+    }
 
     protected void close() {
         // subclass must override
