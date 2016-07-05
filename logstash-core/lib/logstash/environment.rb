@@ -4,6 +4,7 @@ require "logstash/config/cpu_core_strategy"
 require "logstash/settings"
 require "socket"
 require "stud/temporary"
+require "logstash/java_integration"
 
 module LogStash
   # In the event that we're requiring this file without bootstrap/environment.rb
@@ -32,7 +33,7 @@ module LogStash
                     Setting.new("path.plugins", Array, []),
             Setting::String.new("interactive", nil, false),
            Setting::Boolean.new("config.debug", false),
-            Setting::String.new("log.level", "warn", true, ["quiet", "verbose", "warn", "debug"]),
+            Setting::String.new("log.level", "warn", true, ["error", "warn", "debug", "info", "trace"]),
            Setting::Boolean.new("version", false),
            Setting::Boolean.new("help", false),
             Setting::String.new("path.log", nil, false),
