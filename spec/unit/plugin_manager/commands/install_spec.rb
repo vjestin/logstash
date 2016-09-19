@@ -3,7 +3,7 @@ require "spec_helper"
 require "clamp"
 require "pluginmanager/commands/install_command"
 require "uri"
-require 'webmock/rspec'
+require "webmock/rspec"
 
 describe LogStash::PluginManager::InstallCommand do
 
