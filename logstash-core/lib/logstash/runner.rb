@@ -157,19 +157,7 @@ class LogStash::Runner < Clamp::StrictCommand
 
   def run(args)
     settings_path = fetch_settings_path(args)
-
     @settings.set("path.settings", settings_path) if settings_path
-
-    begin
-      LogStash::SETTINGS.from_yaml(LogStash::SETTINGS.get("path.settings"))
-    rescue => e
-      # abort unless we're just looking for the help
-      if (["--help", "-h"] & args).empty?
-        $stderr.puts "INFO: Logstash has a new settings file which defines start up time settings. This file is typically located in $LS_HOME/config or /etc/logstash. If you installed Logstash through a package and are starting it manually please specify the location to this settings file by passing in \"--path.settings=/path/..\" in the command line options"
-        $stderr.puts "ERROR: Failed to load settings file from \"path.settings\". Aborting... path.setting=#{LogStash::SETTINGS.get("path.settings")}, exception=#{e.class}, message=>#{e.message}"
-        return 1
-      end
-    end
 
     super(*[args])
   end
@@ -188,6 +176,20 @@ class LogStash::Runner < Clamp::StrictCommand
       log4j_config_location = ::File.join(setting("path.settings"), "log4j2.properties")
       LogStash::Logging::Logger::initialize(log4j_config_location)
     end
+
+    begin
+      LogStash::SETTINGS.from_yaml(LogStash::SETTINGS.get("path.settings"))
+    rescue => e
+      # abort unless we're just looking for the help
+      if (["--help", "-h"] & args).empty?
+        logger.info("Logstash has a new settings file which defines start up time settings. This file is typically located in $LS_HOME/config or /etc/logstash. If you installed Logstash through a package and are starting it manually please specify the location to this settings file by passing in \"--path.settings=/path/..\" in the command line options")
+        logger.error("Failure while loading settings file from \"path.settings\": #{e.message}" 
+                     :path => LogStash::SETTING.get("path.settings"), 
+                     :exception => e.class)
+        return 1
+      end
+    end
+
     # override log level that may have been introduced from a custom log4j config file
     LogStash::Logging::Logger::configure_logging(setting("log.level"))
 
